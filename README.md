@@ -17,9 +17,15 @@ Email: info@vortexit.co.nz
 Web: www.vortexit.co.nz
 
 Included Libraries:
+
 Timer.h - https://github.com/JChristensen/Timer
+
 Encoder_Polling.h - https://github.com/frodofski/Encoder_Polling/
+
 DallasTemperature.h, OneWire.h - https://github.com/milesburton/Arduino-Temperature-Control-Library
+
 Ethernet.h - http://www.arduino.cc/en/Reference/Ethernet
+
 hidboot.h, usbhub.h, spi4teensy3.h - https://github.com/felis/USB_Host_Shield_2.0
+
 LiquidCrystal_I2C.h - https://github.com/marcoschwartz/LiquidCrystal_I2C
