@@ -1,4 +1,4 @@
-// Smart Charger 4.4.4
+// Smart Charger 1.0.0
 // ---------------------------------------------------------------------------
 // Created by Brett Watt on 20/07/2018
 // Copyright 2018 - Under creative commons license 3.0:
@@ -205,7 +205,7 @@ void setup()
 	lcd.init();
 	lcd.clear();
 	lcd.backlight();// Turn on backlight
-	sprintf(lcdStartup0, "%-20s", "Smart Charger 4.4.4");
+	sprintf(lcdStartup0, "%-20s", "Smart Charger 1.0.0");
 	lcd.setCursor(0,0);
 	lcd.print(lcdStartup0);
 	sprintf(lcdStartup1, "%-20s", "Initializing TP4056");
