@@ -77,7 +77,7 @@ DeviceAddress tempSensorSerial[8]= {
 };
 // Add in an ambient air tempSensor
 const byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-const char server[] = "submit.vortexit.co.nz";    // Server to connect
+const char server[] = "xxxx.vortexit.co.nz";    // Server to connect - Add your server here
 
 IPAddress ip(192, 168, 0, 177); // Set the static IP address to use if the DHCP fails to get assign
 EthernetClient client;
