@@ -1,4 +1,4 @@
-// Smart Charger 1.0.0
+// Smart Charger 1.0.1
 // ---------------------------------------------------------------------------
 // Created by Brett Watt on 20/07/2018
 // Copyright 2018 - Under creative commons license 3.0:
