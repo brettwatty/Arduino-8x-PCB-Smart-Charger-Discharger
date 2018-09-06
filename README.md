@@ -32,6 +32,8 @@ hidboot.h, usbhub.h, spi4teensy3.h - https://github.com/felis/USB_Host_Shield_2.
 
 Change  P10 to P8
 
+Use file: "UsbCore.h" that already has the modified P10 to P8
+
 //typedef MAX3421e<P10, P9> MAX3421E; // Official Arduinos (UNO, Duemilanove, Mega, 2560, Leonardo, Due etc.), Intel Edison, Intel Galileo 2 or Teensy 2.0 and 3.x - Original
 typedef MAX3421e<P8, P9> MAX3421E; // Official Arduinos (UNO, Duemilanove, Mega, 2560, Leonardo, Due etc.), Intel Edison, Intel Galileo 2 or Teensy 2.0 and 3.x
 
