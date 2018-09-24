@@ -652,8 +652,8 @@ void cycleStateValues()
         } else {
           if (intMinutes[i] <= 1) // No need to rest the battery if it is already charged
           { 
-            //cycleState[i] = 5; // Check Battery Milli Ohms Completed set cycleState to Discharge Battery
-            cycleState[i] = 4; // Check Battery Milli Ohms Completed set cycleState to Discharge Battery
+            cycleState[i] = 5; // Check Battery Milli Ohms Completed set cycleState to Discharge Battery
+            //cycleState[i] = 4; // Check Battery Milli Ohms Completed set cycleState to Discharge Battery
           } else {
             cycleState[i] = 4; // Check Battery Milli Ohms Completed set cycleState to Rest Battery   
           }
