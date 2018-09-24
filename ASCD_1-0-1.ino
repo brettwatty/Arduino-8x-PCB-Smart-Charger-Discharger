@@ -35,7 +35,7 @@ static const uint8_t dischargeMosfetPins[] =    {24,27,30,33,36,39,42,45};
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <SPI.h>
-#include <Ethernet.h>
+#include <Ethernet2.h>
 #include <hidboot.h> //Barcode Scanner
 #include <usbhub.h> //Barcode Scanner
 #ifdef dobogusinclude //Barcode Scanner
@@ -64,23 +64,22 @@ const int offsetMilliOhms = 0; // Offset calibration for MilliOhms
 const byte chargingTimeout = 8; // The timeout in Hours for charging
 const byte tempThreshold = 7; // Warning Threshold in degrees above initial Temperature 
 const byte tempMaxThreshold = 10; //Maximum Threshold in degrees above initial Temperature - Considered Faulty
-//const byte dischargerID[8] = {1,2,3,4,5,6,7,8}; // Discharger ID's from PHP Database Table Chargers ------> Change to Modules Array ID + 1
 // You need to run the Dallas get temp sensors sketch to get your DS serails
 DeviceAddress tempSensorSerial[9]= {
-  {0x28, 0xFF, 0x81, 0x90, 0x63, 0x16, 0x03, 0x4A},
-  {0x28, 0xFF, 0xB8, 0xC1, 0x62, 0x16, 0x04, 0x42},
-  {0x28, 0xFF, 0xBA, 0xD5, 0x63, 0x16, 0x03, 0xDF},
-  {0x28, 0xFF, 0xE7, 0xBB, 0x63, 0x16, 0x03, 0x23},
-  {0x28, 0xFF, 0x5D, 0xDC, 0x63, 0x16, 0x03, 0xC7},
-  {0x28, 0xFF, 0xE5, 0x45, 0x63, 0x16, 0x03, 0xC4},
-  {0x28, 0xFF, 0x0E, 0xBC, 0x63, 0x16, 0x03, 0x8C},
-  {0x28, 0xFF, 0xA9, 0x9E, 0x63, 0x16, 0x03, 0x99}
-  }; 
+{0x28, 0x02, 0x00, 0x07, 0xB6, 0x43, 0x01, 0x0B},
+{0x28, 0x0C, 0x01, 0x07, 0x96, 0x38, 0x01, 0xD4},
+{0xA8, 0x2A, 0x00, 0x07, 0x34, 0x56, 0x01, 0x96},
+{0x28, 0x07, 0x00, 0x07, 0x1C, 0x58, 0x01, 0xB3},
+{0x28, 0x02, 0x00, 0x07, 0x09, 0x3D, 0x01, 0x82},
+{0x28, 0x02, 0x00, 0x07, 0xC0, 0x20, 0x01, 0x3A},
+{0x28, 0x0C, 0x01, 0x07, 0x52, 0x43, 0x01, 0x8C},
+{0x38, 0x0C, 0x11, 0x07, 0x74, 0x3E, 0x01, 0xBC},
+{0x28, 0x02, 0x00, 0x07, 0x5D, 0x2A, 0x01, 0xE5}};
 // Add in an ambient air tempSensor ---->> This will be ID 9 (8)
 const byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED }; // If you have multiple devices you may need to change this per CD Unit (MAC conflicts on same network???)
-const char server[] = "submit.vortexit.co.nz";    // Server to connect - Add your server here
-const char userHash[] = "";    // Database Hash - this is unique per user - Get this from Charger / Discharger Menu -> View
-const byte CDUnitID = ;    // CDUnitID this is the Units ID - this is unique per user - Get this from Charger / Discharger Menu -> View -> Select your Charger / Discharger
+const char server[] = "submit.vortexit.co.nz";    // Server to connect to send and recieve data
+const char userHash[] = "xxxxxx";    // Database Hash - this is unique per user - Get this from Charger / Discharger Menu -> View
+const byte CDUnitID = 0;    // CDUnitID this is the Units ID - this is unique per user - Get this from Charger / Discharger Menu -> View -> Select your Charger / Discharger
 
 IPAddress ip(192, 168, 0, 177); // Set the static IP address to use if the DHCP fails to get assign
 EthernetClient client;
@@ -242,7 +241,7 @@ void setup()
   timerObject.every(1000, cycleStateValues);
   timerObject.every(1000, cycleStateLCD);
   timerObject.every(60000, cycleStatePostWebData);
-  timerObject.every(5000, cycleStateGetWebData);
+  //timerObject.every(5000, cycleStateGetWebData);
   lcd.clear();
 }
 
@@ -348,6 +347,7 @@ void cycleStatePostWebData()
   } 
 }
 
+/*
 void cycleStateGetWebData()
 {
   bool postData;
@@ -411,6 +411,7 @@ void cycleStateGetWebData()
     }
   }
 }
+*/
 
 void cycleStateLCD()
 {
@@ -913,8 +914,8 @@ byte checkConnection()
   if (client.connect(server, 80)) 
   {
     client.print("GET /check_connection.php?");
-	client.print("UserHash=");
-    client.print(userHash);	
+  client.print("UserHash=");
+    client.print(userHash); 
     client.println(" HTTP/1.1");
     client.print("Host: ");
     client.println(server);
@@ -932,9 +933,9 @@ byte checkBatteryExists(byte j)
   if (client.connect(server, 80)) 
   {
     client.print("GET /check_battery_barcode.php?");
-	client.print("UserHash=");
+  client.print("UserHash=");
     client.print(userHash);
-    client.print("&");	
+    client.print("&");  
     client.print("BatteryBarcode=");
     client.print(batteryBarcode[j]);
     client.println(" HTTP/1.1");
@@ -954,9 +955,9 @@ float getCutOffVoltage(byte j)
   if (client.connect(server, 80)) 
   {
     client.print("GET /get_cutoff_voltage.php?");
-	client.print("UserHash=");
+  client.print("UserHash=");
     client.print(userHash);
-    client.print("&");	
+    client.print("&");  
     client.print("BatteryBarcode=");
     client.print(batteryBarcode[j]);
     client.println(" HTTP/1.1");
@@ -976,12 +977,12 @@ byte addDischargeRecord(byte j)
   if (client.connect(server, 80)) 
   {
     client.print("GET /battery_discharge_post.php?");
-	client.print("UserHash=");
+  client.print("UserHash=");
     client.print(userHash);
     client.print("&");
-	client.print("CDUnitID=");
+  client.print("CDUnitID=");
     client.print(CDUnitID);
-    client.print("&");	
+    client.print("&");  
     client.print("BatteryBarcode=");
     client.print(batteryBarcode[j]);
     client.print("&");
@@ -1063,4 +1064,3 @@ float readPage()
     }
   }                                                                                                        
 }
-
