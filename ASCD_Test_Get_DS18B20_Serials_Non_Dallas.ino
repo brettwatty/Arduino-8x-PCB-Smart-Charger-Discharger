@@ -38,6 +38,7 @@ void loop()
     Serial.print(" - ");
     Serial.println(getTemperature(i));    
   }
+  Serial.println("----------------------------------------------");
   delay(10000);
 }
 
