@@ -24,7 +24,7 @@ static const uint8_t chargeMosfetPins[] =       {22,25,28,31,34,37,40,43};
 static const uint8_t chargeLedPins[] =          {23,26,29,32,35,38,41,44};
 static const uint8_t dischargeMosfetPins[] =    {24,27,30,33,36,39,42,45};
 
-#define ONE_WIRE_BUS 2 // Pin 2 Temperature Sensors | Pin 4 for Version 2.0
+#define ONE_WIRE_BUS 4 // Pin 2 Temperature Sensors | Pin 4 for Version 2.0
 #define TEMPERATURE_PRECISION 9
 
 //Includes 
@@ -40,7 +40,7 @@ static const uint8_t dischargeMosfetPins[] =    {24,27,30,33,36,39,42,45};
 #ifdef dobogusinclude //Barcode Scanner
 #include <spi4teensy3.h> //Barcode Scanner
 #endif
-#include <Ethernet2.h>
+#include <Ethernet2.h> // Or #include <Ethernet.h> depending if it crashes or not
 
 //Objects
 LiquidCrystal_I2C lcd(0x27,20,4); // set the LCD address to 0x27 for a 20 chars and 4 line display
@@ -60,7 +60,7 @@ const float defaultBatteryCutOffVoltage = 2.8; // Voltage that the discharge sto
 const byte restTimeMinutes = 1; // The time in Minutes to rest the battery after charge. 0-59 are valid
 const int lowMilliamps = 1000; //  This is the value of Milli Amps that is considered low and does not get recharged because it is considered faulty
 const int highMilliOhms = 500; //  This is the value of Milli Ohms that is considered high and the battery is considered faulty
-const int offsetMilliOhms = 0; // Offset calibration for MilliOhms
+const int offsetMilliOhms = -98; // Offset calibration for MilliOhms
 const byte chargingTimeout = 8; // The timeout in Hours for charging
 const byte tempThreshold = 7; // Warning Threshold in degrees above initial Temperature 
 const byte tempMaxThreshold = 10; //Maximum Threshold in degrees above initial Temperature - Considered Faulty
@@ -182,7 +182,7 @@ HIDBoot<USB_HID_PROTOCOL_KEYBOARD>    HidKeyboard(&Usb);
 void setup() 
 {
 	sensors.begin(); // Start up the library Dallas Temperature IC Control
-	encoder_begin(3, 4); // Start the decoder encoder Pin A (CLK) = 3 encoder Pin B (DT) = 4 | Pin 7 (CLK) and Pin 6 (DT) for Version 2.0
+	encoder_begin(7, 6); // Start the decoder encoder Pin A (CLK) = 3 encoder Pin B (DT) = 4 | Pin 7 (CLK) and Pin 6 (DT) for Version 2.0
 	pinMode(5, INPUT_PULLUP); // Pin 5 Rotary Encoder Button (SW)
 	for(byte i = 0; i < modules; i++)
 	{ 
@@ -538,6 +538,8 @@ void cycleStateValues()
 		switch (cycleState[i]) 
 		{
 		case 0: // Check Battery Voltage
+			digitalWrite(chargeMosfetPins[i], LOW);
+			digitalWrite(dischargeMosfetPins[i], LOW);
 			if(batteryCheck(i)) batteryDetectedCount[i]++;
 			if (batteryDetectedCount[i] == 5)
 			{
@@ -729,6 +731,7 @@ void cycleStateValues()
 			if (intHours[i] == chargingTimeout) // Charging has reached Timeout period. Either battery will not hold charge, has high capacity or the TP4056 is faulty
 			{
 				digitalWrite(chargeMosfetPins[i], LOW); // Turn off TP4056
+				digitalWrite(dischargeMosfetPins[i], LOW); // Turn off Discharge Mosfet (Just incase)
 				batteryFaultCode[i] = 9; // Set the Battery Fault Code to 9 Charging Timeout
 				cycleState[i] = 7; // Charging Timeout. Battery is considered faulty set cycleState to Completed
 			}
@@ -750,7 +753,12 @@ void cycleStateValues()
 				mosfetSwitchCount[i] = 0;
 			}
 			if (!batteryCheck(i)) batteryNotDetectedCount[i]++;
-			if (batteryNotDetectedCount[i] == 5) cycleState[i] = 0; // Completed and Battery Removed set cycleState to Check Battery Voltage
+			if (batteryNotDetectedCount[i] == 5) 
+			{
+				cycleState[i] = 0; // Completed and Battery Removed set cycleState to Check Battery Voltage
+				digitalWrite(chargeMosfetPins[i], LOW); 
+				digitalWrite(dischargeMosfetPins[i], LOW);
+			}
 			break;
 		}
 		secondsTimer(i);
