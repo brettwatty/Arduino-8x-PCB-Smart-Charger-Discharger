@@ -1,5 +1,5 @@
 #include <SPI.h>
-#include <Ethernet.h>
+#include <Ethernet.h> // Or #include <Ethernet2.h> depending if it crashes or not
 
 const byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 const char server[] = "submit.vortexit.co.nz";
