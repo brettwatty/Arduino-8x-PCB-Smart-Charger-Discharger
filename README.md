@@ -24,7 +24,7 @@ Encoder_Polling.h - https://github.com/frodofski/Encoder_Polling/
 
 DallasTemperature.h, OneWire.h - https://github.com/milesburton/Arduino-Temperature-Control-Library
 
-Ethernet.h - http://www.arduino.cc/en/Reference/Ethernet
+Ethernet2.h - https://github.com/adafruit/Ethernet2
 
 LiquidCrystal_I2C.h - https://github.com/marcoschwartz/LiquidCrystal_I2C
 
