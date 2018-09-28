@@ -41,8 +41,8 @@ static const uint8_t dischargeMosfetPins[] =    {24,27,30,33,36,39,42,45};
 //#include <MemoryFree.h>
 
 // Comment out the version that are not your PCB version
-#include "ascd_pcb_ver_1-1.h" 	// Version 1.1 PCB PIN definitions
-//#include "ascd_pcb_ver_2-0.h"	// Version 2.0 PCB PIN definitions 
+//#include "ascd_pcb_ver_1-1.h" 	// Version 1.1 PCB PIN definitions
+#include "ascd_pcb_ver_2-0.h"	// Version 2.0 PCB PIN definitions 
 
 // Comment out the Network type that you are not going to use
 #include "ethernet_mode.h" 	// Use the W5500 Ethernet Module
