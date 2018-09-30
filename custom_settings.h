@@ -16,34 +16,30 @@
 //--------------------------------------------------------------------------
 // Comment out the one you are not using
 // PCB Version - 1.1 or 2.0
-#define ASCD_1-1
-//#define ASCD_2-0
+//#define ASCD_1-1
+#define ASCD_2-0
 
 // Network Mode - Ethernet or WIFI
 #define ETHERNET_MODE
 //#define WIFI_MODE
 
 // USB Barcode Scanner Mode - HID KB or HID KB UNIVERSAL
-//#define HID_KB
-#define HID_KB_UNIVERSAL
+#define HID_KB
+//#define HID_KB_UNIVERSAL
 //--------------------------------------------------------------------------
 
 const float shuntResistor = 3.3; // In Ohms - Shunt (Discharge) resistors resistance
-const float referenceVoltage = 5.01; // 5V Output of Arduino Charger 1
-//const float referenceVoltage = 4.94; // 5V Output of Arduino Charger 2
+const float referenceVoltage = 5.01; // 5V Output of Arduino
 const float defaultBatteryCutOffVoltage = 2.8; // Voltage that the discharge stops ---> Will be replaced with Get DB Discharge Cutoff
 const byte restTimeMinutes = 1; // The time in Minutes to rest the battery after charge. 0-59 are valid
 const int lowMilliamps = 1000; //  This is the value of Milli Amps that is considered low and does not get recharged because it is considered faulty
 const int highMilliOhms = 500; //  This is the value of Milli Ohms that is considered high and the battery is considered faulty
-const int offsetMilliOhms = 0; // Offset calibration for MilliOhms Charger 1
-//const int offsetMilliOhms = -98; // Offset calibration for MilliOhms Charger 2
+const int offsetMilliOhms = 0; // Offset calibration for MilliOhms
 const byte chargingTimeout = 8; // The timeout in Hours for charging
 const byte tempThreshold = 7; // Warning Threshold in degrees above initial Temperature 
 const byte tempMaxThreshold = 10; //Maximum Threshold in degrees above initial Temperature - Considered Faulty
-const float batteryVolatgeLeak = 2.00;    // On the initial screen "BATTERY CHECK" observe the highest voltage of each module and set this value slightly higher - Charger 1
-//const float batteryVolatgeLeak = 1.00;  // On the initial screen "BATTERY CHECK" observe the highest voltage of each module and set this value slightly higher - Charger 2
+const float batteryVolatgeLeak = 2.00;    // On the initial screen "BATTERY CHECK" observe the highest voltage of each module and set this value slightly higher
 // You need to run the Dallas get temp sensors sketch (ASCD_Test_Get_DS18B20_Serials.ino) to get your DS serails
-// Charger 1
 DeviceAddress tempSensorSerial[9]= {
   {0x28, 0xFF, 0x81, 0x90, 0x63, 0x16, 0x03, 0x4A},
   {0x28, 0xFF, 0xB8, 0xC1, 0x62, 0x16, 0x04, 0x42},
@@ -54,20 +50,5 @@ DeviceAddress tempSensorSerial[9]= {
   {0x28, 0xFF, 0x0E, 0xBC, 0x63, 0x16, 0x03, 0x8C},
   {0x28, 0xFF, 0xA9, 0x9E, 0x63, 0x16, 0x03, 0x99}
 };  
-/*
-
-// Charger 2
-DeviceAddress tempSensorSerial[9]= {
-  {0x28, 0x02, 0x00, 0x07, 0xB6, 0x43, 0x01, 0x0B},
-  {0x28, 0x0C, 0x01, 0x07, 0x96, 0x38, 0x01, 0xD4},
-  {0x28, 0x02, 0x00, 0x07, 0xB6, 0x43, 0x01, 0x0B},
-  {0x28, 0x07, 0x00, 0x07, 0x1C, 0x58, 0x01, 0xB3},
-  {0x28, 0x02, 0x00, 0x07, 0x09, 0x3D, 0x01, 0x82},
-  {0x28, 0x02, 0x00, 0x07, 0xC0, 0x20, 0x01, 0x3A},
-  {0x28, 0x0C, 0x01, 0x07, 0x52, 0x43, 0x01, 0x8C},
-  {0x28, 0x02, 0x00, 0x07, 0xB6, 0x43, 0x01, 0x0B},
-  {0x28, 0x02, 0x00, 0x07, 0x5D, 0x2A, 0x01, 0xE5}
- };  
-*/
-const char userHash[] = "c4ca4238";    // Database Hash - this is unique per user - Get this from Charger / Discharger Menu -> View
-const byte CDUnitID = 2;    // CDUnitID this is the Units ID - this is unique per user - Get this from Charger / Discharger Menu -> View -> Select your Charger / Discharger
+const char userHash[] = "xxxxxx";    // Database Hash - this is unique per user - Get this from Charger / Discharger Menu -> View
+const byte CDUnitID = 0;    // CDUnitID this is the Units ID - this is unique per user - Get this from Charger / Discharger Menu -> View -> Select your Charger / Discharger
