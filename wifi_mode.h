@@ -23,8 +23,8 @@
 SoftwareSerial Serial1(RX, TX); 	// RX, TX
 #endif
 
-char ssid[] = "WiseGroup";			// Your Network SSID (name)
-char pass[] = "revolutionwireless";	// Your Network Password
+char ssid[] = "YOUR_SSID";			// Your Network SSID (name)
+char pass[] = "YOUR_PASSWORD";	// Your Network Password
 int status = WL_IDLE_STATUS;     	// The Wifi Radio's Status
 
 WiFiEspClient client; 				// ESP8266 Wifi Client
