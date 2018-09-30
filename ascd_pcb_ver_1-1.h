@@ -14,5 +14,5 @@
 //       Web: www.vortexit.co.nz
 
 #define ONE_WIRE_BUS 2 	// Pin 2 Temperature Sensors
-#define CLK 3			// Rotary Encoder PIN A CLK
-#define DT 4			// Rotary Encoder PIN B DT
+#define CLK 3			      // Rotary Encoder PIN A CLK
+#define DT 4			      // Rotary Encoder PIN B DT

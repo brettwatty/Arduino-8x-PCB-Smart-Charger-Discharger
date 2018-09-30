@@ -14,6 +14,7 @@
 // TP4056, Rotary Encoder KY-040 Module, Temp Sensor DS18B20
 // Ethernet Module W5500, Mini USB Host Shield (Barcode Scanner), 
 // LCD 2004 20x4 with IIC/I2C/TWI Serial, Discharge (MilliAmps and MillOhms)
+// ESP8266 WIFI (untested)
 //
 // @author Email: info@vortexit.co.nz 
 //       Web: www.vortexit.co.nz
@@ -35,18 +36,35 @@ static const uint8_t dischargeMosfetPins[] =    {24,27,30,33,36,39,42,45};
 #include "Encoder_Polling.h"
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#include <hidboot.h> //Barcode Scanner
-#include <usbhub.h> //Barcode Scanner
 
-//#include <MemoryFree.h>
-
-// Comment out the version that are not your PCB version
-#include "ascd_pcb_ver_1-1.h" 	// Version 1.1 PCB PIN definitions
-//#include "ascd_pcb_ver_2-0.h"	// Version 2.0 PCB PIN definitions 
-
-// Comment out the Network type that you are not going to use
-#include "ethernet_mode.h" 	// Use the W5500 Ethernet Module
-//#include "wifi_mode.h"	// Use the ESP8266 Wifi Module
+//--------------------------------------------------------------------------
+// Custom Header File for PCB and USER specific settings
+#include "custom_settings.h"  // User and Board Custom Settings
+//--------------------------------------------------------------------------
+// PCB Version
+#ifdef ASCD_1-1
+#include "ascd_pcb_ver_1-1.h" 	    // Version 1.1 PCB PIN definitions
+#endif
+#ifdef ASCD_2-0
+#include "ascd_pcb_ver_2-0.h"       // Version 2.0 PCB PIN definitions 
+#endif
+//--------------------------------------------------------------------------
+//Network Mode
+#ifdef ETHERNET_MODE
+#include "ethernet_mode.h"          // Use the W5500 Ethernet Module
+#endif
+#ifdef WIFI_MODE
+#include "wifi_mode.h"              // Use the ESP8266 Wifi Module
+#endif
+//--------------------------------------------------------------------------
+// Barcode Scanner Mode - Change Baud Rate, SSID and Password in "wifi_mode.h" header file
+#ifdef HID_KB
+#include "usb_hid.h"                // USB mode: HID Keyboard
+#endif
+#ifdef HID_KB_UNIVERSAL
+#include "usb_hid_universal.h"      // USB mode: HID Keyboard
+#endif
+//--------------------------------------------------------------------------
 
 //Objects
 LiquidCrystal_I2C lcd(0x27,20,4); // set the LCD address to 0x27 for a 20 chars and 4 line display
@@ -58,11 +76,6 @@ DallasTemperature sensors(&oneWire);
 
 extern SPISettings wiznet_SPI_settings;
 
-//--------------------------------------------------------------------------
-// Custom Header File for PCB and USER specific settings
-#include "custom_settings.h"	// User and Board Custom Settings
-
-//--------------------------------------------------------------------------
 // Constant Variables
 const byte modules = 8; // Number of Modules
 const char server[] = "submit.vortexit.co.nz";    // Server to connect to send and recieve data
@@ -84,7 +97,6 @@ boolean buttonState = 0;
 boolean lastButtonState = 0;
 boolean mosfetSwitchState[modules];
 byte cycleStateCycles = 0;
-//int connectionAttempts[8];
 float batteryVoltage[modules];
 float batteryLastVoltage[modules];
 byte batteryFaultCode[modules];
@@ -96,7 +108,6 @@ byte tempCountAmbient = 0;
 byte tempAmbient = 0;
 char lcdLine2[25];
 char lcdLine3[25];
-const float batteryVolatgeLeak = 2.00;
 
 // readPage Variables
 char serverResult[32]; // string for incoming serial data
@@ -112,7 +123,6 @@ char barcodeString[25] = "";
 bool barcodeStringCompleted = false;
 byte pendingBarcode = 255;
 char batteryBarcode[modules][25];
-//bool barcodeDuplicateFound[modules];
 
 // Cutoff Voltage / Get Barcode
 bool batteryGetCompleted[modules];
@@ -142,23 +152,6 @@ bool dischargeUploadCompleted[modules];
 int dischargeMinutes[modules];
 bool pendingDischargeRecord[modules];
 
-// Completed
-//byte mosfetSwitchCount[modules];
-
-// USB Host Shield - Barcode Scanner
-class KbdRptParser : public KeyboardReportParser
-{
-
-protected:
-	virtual void OnKeyDown  (uint8_t mod, uint8_t key);
-	virtual void OnKeyPressed(uint8_t key);
-};
-
-KbdRptParser Prs;
-USB     Usb;
-HIDBoot<USB_HID_PROTOCOL_KEYBOARD>    HidKeyboard(&Usb);
-
-
 //--------------------------------------------------------------------------
 
 void setup() 
@@ -176,9 +169,7 @@ void setup()
 	char lcdStartup1[25];
 	char lcdStartup2[25];
 	char lcdStartup3[25];
-	//Serial.begin(115200);
-	//Serial.println("Started");
-	//Startup Screen
+  //Startup Screen
 	lcd.init();
 	lcd.clear();
 	lcd.backlight();// Turn on backlight
@@ -194,30 +185,32 @@ void setup()
 	lcd.print(lcdStartup1);
 	delay(1000);
 	sprintf(lcdStartup3, "%-20s", Usb.Init() == -1 ? "USB: DID NOT START" : "USB: STARTED");
+	#ifdef HID_KB
 	HidKeyboard.SetReportParser(0, &Prs);
+	#endif
+	#ifdef HID_KB_UNIVERSAL
+	Hid.SetReportParser(0, (HIDReportParser*)&Prs);
+	#endif
 	lcd.setCursor(0,3);
 	lcd.print(lcdStartup3);
-	//char networkIP[16];
-	// Comment out the Network type that you are not going to use
-	
+	#ifdef ETHERNET_MODE
 	// Ethernet Mode
-  SPISettings settingsA(8000000, MSBFIRST, SPI_MODE3);
-  wiznet_SPI_settings = settingsA;
+	SPISettings settingsA(8000000, MSBFIRST, SPI_MODE3);
+	wiznet_SPI_settings = settingsA;
 	if (Ethernet.begin(mac) == 0) {
 		// Try to congifure using a static IP address instead of DHCP:
 		Ethernet.begin(mac, ip, dnServer, gateway, subnet); 
 	}
 	delay(1000);
 	IPAddress networkIP = Ethernet.localIP();
-
-	/*
+	#endif
+	#ifdef WIFI_MODE
 	// Wifi Mode
 	// Initialize ESP module
 	Serial1.begin(WIFI_BAUD);
 	WiFi.init(&Serial1);
 	// Check for the presence of the shield
 	if (WiFi.status() == WL_NO_SHIELD) {
-		//Serial.println("WiFi shield not present");
 		//Don't continue
 		while (true);
 	}
@@ -227,20 +220,21 @@ void setup()
 		status = WiFi.begin(ssid, pass);
 	}
 	IPAddress networkIP = WiFi.localIP();
-	*/
-	
+	#endif
 	sprintf(lcdStartup2, "IP:%d.%d.%d.%d%-5s", networkIP[0], networkIP[1], networkIP[2], networkIP[3], " ");
 	lcd.setCursor(0,2);
 	lcd.print(lcdStartup2);
 	float checkConnectionResult = checkConnection();
 	if(checkConnectionResult == 0)
 	{
-		sprintf(lcdStartup3, "%-20s", "DB/WEB: CONNECTED");
+		sprintf(lcdStartup3, "%-20s", "WEB: CONNECTION GOOD");
 	} else if (checkConnectionResult == 2) {
-		sprintf(lcdStartup3, "%-20s", "DB/WEB: TIME OUT");
-	} else {
-		sprintf(lcdStartup3, "%-20s", "DB/WEB: FAILED");
-	}
+		sprintf(lcdStartup3, "%-20s", "WEB: TIMMED OUT");
+  } else if (checkConnectionResult == 7) {
+		sprintf(lcdStartup3, "%-20s", "WEB: HASH NOT EXIST");
+  } else if (checkConnectionResult == 8) {
+    sprintf(lcdStartup3, "%-20s", "WEB: HASH NO INPUT");
+  }
 	lcd.setCursor(0,3);
 	lcd.print(lcdStartup3);
 	sensors.begin(); // Start up the library Dallas Temperature IC Control
@@ -259,7 +253,7 @@ void loop()
 {
 	//Nothing else should be in this loop. Use timerObject and Usb.Task only .
 	Usb.Task(); //Barcode Scanner
-	timerObject.update();
+	timerObject.update(); // Timer Triggers
 }
 
 void processBarcode(int keyInput)
@@ -267,6 +261,7 @@ void processBarcode(int keyInput)
 	//Barcode Scanner
 	if (keyInput == 19) //Return Carriage ASCII Numeric 19
 	{
+		Usb.Task(); //Barcode Scanner
 		barcodeStringCompleted = true;
 		cycleStateValues();
 		cycleStateLCD(); 
@@ -580,7 +575,6 @@ void cycleStateValues()
 				dischargeAmps[i] = 0.00;
 				dischargeCompleted[i] = false;
 				batteryFaultCode[i] = 0;
-				//mosfetSwitchCount[i] = 0;
 				clearSecondsTimer(i);
 				getBatteryVoltage(i); // Get battery voltage for Charge Cycle
 				batteryInitialVoltage[i] = batteryVoltage[i];
@@ -589,11 +583,9 @@ void cycleStateValues()
 			break;
 			
 		case 1: // Get Battery Barcode  
-			//getBatteryVoltage(i);
 			if(strcmp(batteryBarcode[i], "") == 0)
 			{
 				if (pendingBarcode == 255) pendingBarcode = i;
-				// HTTP Check if the Battery Barcode is in the DB
 				if ((barcodeStringCompleted == true && pendingBarcode == i) || barcodeOverride == true) 
 				{
 					if(barcodeOverride == true)
@@ -615,8 +607,6 @@ void cycleStateValues()
 				} 
 			}
 			//Check if battery has been removed
-			//digitalWrite(chargeMosfetPins[i], HIGH); // Turn on TP4056
-			//digitalWrite(chargeMosfetPins[i], LOW); // Turn off TP4056
 			if(!batteryCheck(i)) batteryDetectedCount[i]++;
 			if (batteryDetectedCount[i] == 5) 
 			{
@@ -751,23 +741,6 @@ void cycleStateValues()
 			break;
 			
 		case 7: // Completed
-			/*
-			if (mosfetSwitchCount[i] <= 9)
-			{
-				mosfetSwitchCount[i]++;
-			} 
-			else if (mosfetSwitchCount[i] == 10)
-			{
-				mosfetSwitch(i);
-				mosfetSwitchCount[i]++;
-			} else if (mosfetSwitchCount[i] >= 11) 
-			{
-				mosfetSwitch(i);
-				mosfetSwitchCount[i] = 0;
-			}
-			*/
-			//digitalWrite(chargeMosfetPins[i], HIGH); // Turn on TP4056
-			//digitalWrite(chargeMosfetPins[i], LOW); // Turn off TP4056
 			if (!batteryCheck(i)) batteryDetectedCount[i]++;
 			if (batteryDetectedCount[i] == 2) 
 			{
@@ -779,22 +752,6 @@ void cycleStateValues()
 		secondsTimer(i);
 	} 
 }
-
-/*
-void mosfetSwitch(byte j)
-{
-	if (mosfetSwitchState[j])
-	{
-		digitalWrite(chargeMosfetPins[j], LOW);
-		digitalWrite(dischargeMosfetPins[j], LOW);
-		mosfetSwitchState[j] = false;
-	} else {
-		digitalWrite(chargeMosfetPins[j], HIGH);
-		digitalWrite(dischargeMosfetPins[j], HIGH);
-		mosfetSwitchState[j] = true;
-	}
-}
-*/
 
 void mosfetSwitchAll()
 {

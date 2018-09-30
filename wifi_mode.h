@@ -28,7 +28,3 @@ char pass[] = "YOUR_PASSWORD";	// Your Network Password
 int status = WL_IDLE_STATUS;     	// The Wifi Radio's Status
 
 WiFiEspClient client; 				// ESP8266 Wifi Client
-
-//boolean networkMode = 1; 			// Network mode: false = Ethernet and true = WIFI 
-
-

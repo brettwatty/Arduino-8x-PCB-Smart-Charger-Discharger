@@ -13,15 +13,16 @@
 // @author Email: info@vortexit.co.nz 
 //       Web: www.vortexit.co.nz
 
-#include <Ethernet2.h> 										// Or #include <Ethernet.h> depending if it crashes or not
+#include <Ethernet2.h> 										      // Ethernet2 WIZNET Libarary 
 
 EthernetClient client;
 
-//boolean networkMode = 0; 									// Network mode: false = Ethernet and true = WIFI 
 const byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED}; 	// If you have multiple devices you may need to change this per CD Unit (MAC conflicts on same network???)
-IPAddress ip(192, 168, 0, 200); 							// Set the static IP address to use if the DHCP fails to get assign
+IPAddress ip(192, 168, 0, 200); 							  // Set the static IP address to use if the DHCP fails to get assign
 IPAddress dnServer(192, 168, 0, 1); 						// The DNS Server IP
 IPAddress gateway(192, 168, 0, 1); 							// The Router's Gateway Address
 IPAddress subnet(255, 255, 255, 0); 						// The Network Subnet
 
 extern SPISettings wiznet_SPI_settings;
+
+

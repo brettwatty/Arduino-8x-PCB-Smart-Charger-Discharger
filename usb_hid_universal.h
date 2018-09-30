@@ -8,11 +8,23 @@
 // 
 // @brief 
 // This is the header file for the Arduino Smart Charger / Discharger
-// version 2.0 PCB PIN definitions
+// USB Host as Standard HID
 //
 // @author Email: info@vortexit.co.nz 
 //       Web: www.vortexit.co.nz
 
-#define ONE_WIRE_BUS 4 	// Pin 2 Temperature Sensors
-#define CLK 7			      // Rotary Encoder PIN A CLK
-#define DT 6			      // Rotary Encoder PIN B DT
+#include <hidboot.h> //Barcode Scanner
+#include <hiduniversal.h>  //Barcode Scanner
+
+// USB Host Shield - Barcode Scanner
+class KbdRptParser : public KeyboardReportParser
+{
+protected:
+	virtual void OnKeyDown  (uint8_t mod, uint8_t key);
+	virtual void OnKeyPressed(uint8_t key);
+};
+
+KbdRptParser Prs;
+USB     Usb;
+HIDUniversal      Hid(&Usb);    
+HIDBoot<USB_HID_PROTOCOL_KEYBOARD>    HidKeyboard(&Usb);
