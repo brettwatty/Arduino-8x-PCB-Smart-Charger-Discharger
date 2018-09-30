@@ -24,3 +24,4 @@ IPAddress dnServer(192, 168, 0, 1); 						// The DNS Server IP
 IPAddress gateway(192, 168, 0, 1); 							// The Router's Gateway Address
 IPAddress subnet(255, 255, 255, 0); 						// The Network Subnet
 
+extern SPISettings wiznet_SPI_settings;

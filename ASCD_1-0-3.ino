@@ -41,8 +41,8 @@ static const uint8_t dischargeMosfetPins[] =    {24,27,30,33,36,39,42,45};
 //#include <MemoryFree.h>
 
 // Comment out the version that are not your PCB version
-//#include "ascd_pcb_ver_1-1.h" 	// Version 1.1 PCB PIN definitions
-#include "ascd_pcb_ver_2-0.h"	// Version 2.0 PCB PIN definitions 
+#include "ascd_pcb_ver_1-1.h" 	// Version 1.1 PCB PIN definitions
+//#include "ascd_pcb_ver_2-0.h"	// Version 2.0 PCB PIN definitions 
 
 // Comment out the Network type that you are not going to use
 #include "ethernet_mode.h" 	// Use the W5500 Ethernet Module
@@ -86,6 +86,7 @@ boolean mosfetSwitchState[modules];
 byte cycleStateCycles = 0;
 //int connectionAttempts[8];
 float batteryVoltage[modules];
+float batteryLastVoltage[modules];
 byte batteryFaultCode[modules];
 byte batteryInitialTemp[modules];
 byte batteryHighestTemp[modules];
@@ -162,8 +163,6 @@ HIDBoot<USB_HID_PROTOCOL_KEYBOARD>    HidKeyboard(&Usb);
 
 void setup() 
 {
-	SPISettings settingsA(8000000, MSBFIRST, SPI_MODE3);
-	wiznet_SPI_settings = settingsA;
 	pinMode(5, INPUT_PULLUP); // Pin 5 Rotary Encoder Button (SW)
 	for(byte i = 0; i < modules; i++)
 	{ 
@@ -202,6 +201,8 @@ void setup()
 	// Comment out the Network type that you are not going to use
 	
 	// Ethernet Mode
+  SPISettings settingsA(8000000, MSBFIRST, SPI_MODE3);
+  wiznet_SPI_settings = settingsA;
 	if (Ethernet.begin(mac) == 0) {
 		// Try to congifure using a static IP address instead of DHCP:
 		Ethernet.begin(mac, ip, dnServer, gateway, subnet); 
@@ -614,8 +615,8 @@ void cycleStateValues()
 				} 
 			}
 			//Check if battery has been removed
-			digitalWrite(chargeMosfetPins[i], HIGH); // Turn on TP4056
-			digitalWrite(chargeMosfetPins[i], LOW); // Turn off TP4056
+			//digitalWrite(chargeMosfetPins[i], HIGH); // Turn on TP4056
+			//digitalWrite(chargeMosfetPins[i], LOW); // Turn off TP4056
 			if(!batteryCheck(i)) batteryDetectedCount[i]++;
 			if (batteryDetectedCount[i] == 5) 
 			{
@@ -765,15 +766,13 @@ void cycleStateValues()
 				mosfetSwitchCount[i] = 0;
 			}
 			*/
-			digitalWrite(chargeMosfetPins[i], HIGH); // Turn on TP4056
-			digitalWrite(chargeMosfetPins[i], LOW); // Turn off TP4056
+			//digitalWrite(chargeMosfetPins[i], HIGH); // Turn on TP4056
+			//digitalWrite(chargeMosfetPins[i], LOW); // Turn off TP4056
 			if (!batteryCheck(i)) batteryDetectedCount[i]++;
 			if (batteryDetectedCount[i] == 2) 
 			{
 				batteryDetectedCount[i] = 0;
 				cycleState[i] = 0; // Completed and Battery Removed set cycleState to Check Battery Voltage
-				digitalWrite(chargeMosfetPins[i], LOW); 
-				digitalWrite(dischargeMosfetPins[i], LOW);
 			}
 			break;
 		}
@@ -943,23 +942,31 @@ bool dischargeCycle(byte j)
 bool batteryCheck(byte j)
 {
 	getBatteryVoltage(j);
+	
+	if (batteryLastVoltage[j] - batteryVoltage[j] >= 0.05) 
+	{
+		digitalWrite(chargeMosfetPins[j], HIGH); // Turn on TP4056
+		digitalWrite(chargeMosfetPins[j], LOW); // Turn off TP4056
+		getBatteryVoltage(j);
+	}
 	if (batteryVoltage[j] <= batteryVolatgeLeak) 
 	{
 		return false;
 	} else {
 		return true;
 	}
+	batteryLastVoltage[j] = batteryVoltage[j];
 }
 
 void getBatteryVoltage(byte j)
 {
 	float batterySampleVoltage = 0.00;
-	for(byte i = 0; i < 10; i++)
+	for(byte i = 0; i < 50; i++)
 	{
 		batterySampleVoltage = batterySampleVoltage + analogRead(batteryVolatgePins[j]);
 	}
-	batterySampleVoltage = batterySampleVoltage / 10; 
-	batteryVoltage[j] = batterySampleVoltage * referenceVoltage / 1023.0; 
+	batterySampleVoltage = batterySampleVoltage / 50; 
+	batteryVoltage[j] = batterySampleVoltage * referenceVoltage / 1024; 
 }
 
 byte checkConnection()
