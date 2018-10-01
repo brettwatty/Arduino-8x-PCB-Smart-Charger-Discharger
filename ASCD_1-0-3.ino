@@ -612,6 +612,7 @@ void cycleStateValues()
 			{
 				batteryDetectedCount[i] = 0;
 				rotaryOverride = 0;
+				pendingBarcode = 255;
 				cycleState[i] = 0; // Completed and Battery Removed set cycleState to Check Battery Voltage
 			}
 			break;
@@ -900,7 +901,7 @@ bool batteryCheck(byte j)
 {
 	getBatteryVoltage(j);
 	
-	if (batteryLastVoltage[j] - batteryVoltage[j] >= 0.05) 
+	if (batteryLastVoltage[j] - batteryVoltage[j] >= 0.05 || batteryLastVoltage[j] - batteryVoltage[j] <= 0.05) 
 	{
 		digitalWrite(chargeMosfetPins[j], HIGH); // Turn on TP4056
 		digitalWrite(chargeMosfetPins[j], LOW); // Turn off TP4056
