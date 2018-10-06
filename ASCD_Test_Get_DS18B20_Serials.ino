@@ -19,7 +19,7 @@ DeviceAddress tempSensorSerial[9];
 byte deviceCount = 9; // 9 in the Arduino Charger / Discharger
 float sensorTempAverage = 0;
 bool tempSensorSerialCompleted[10];
-bool detectionComplete = FALSE;
+bool detectionComplete = false;
 byte tempSensorSerialOutput[9]; //Sensors 1 - 9
 byte pendingDetection = 0; // This will be from Battery 1 to 8 and then 9 for the ambient temperature
 
