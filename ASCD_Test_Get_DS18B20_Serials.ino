@@ -126,7 +126,7 @@ void printData(DeviceAddress deviceAddress)
 
 void loop(void)
 { 
-  if(detectionComplete == FALSE)
+  if(detectionComplete == false)
   {
     //Serial.print("Average Temp: ");
     //Serial.println(sensorTempAverage);
@@ -137,7 +137,7 @@ void loop(void)
     sensors.requestTemperatures();
     for (uint8_t i = 0; i < deviceCount; i++)
     {
-      if(tempSensorSerialCompleted[i] == FALSE)
+      if(tempSensorSerialCompleted[i] == false)
       {
         if (pendingDetection != (deviceCount - 1)) 
         {
@@ -149,7 +149,7 @@ void loop(void)
           {
             Serial.print("Detected Battery: ");
             Serial.println(pendingDetection + 1);
-            tempSensorSerialCompleted[i] = TRUE;
+            tempSensorSerialCompleted[i] = true;
             tempSensorSerialOutput[pendingDetection] = i;
             pendingDetection++; //If not greater than number of devices - last one = ambiant
           }
@@ -161,10 +161,10 @@ void loop(void)
           Serial.print("-------------------------------------");  
           Serial.print("Detected Ambient Sensor Completed");
           Serial.println("-------------------------------------");  
-          tempSensorSerialCompleted[i] = TRUE;
+          tempSensorSerialCompleted[i] = true;
           // Got the last one we are done
           tempSensorSerialOutput[pendingDetection] = i;
-          detectionComplete = TRUE;
+          detectionComplete = true;
         }
       }
     }
