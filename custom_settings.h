@@ -51,4 +51,4 @@ DeviceAddress tempSensorSerial[9]= {
   {0x28, 0xFF, 0xA9, 0x9E, 0x63, 0x16, 0x03, 0x99}
 };  
 const char userHash[] = "xxxxxx";    // Database Hash - this is unique per user - Get this from Charger / Discharger Menu -> View
-const byte CDUnitID = 0;    // CDUnitID this is the Units ID - this is unique per user - Get this from Charger / Discharger Menu -> View -> Select your Charger / Discharger
+const int CDUnitID = 0;    // CDUnitID this is the Units ID - this is unique per user - Get this from Charger / Discharger Menu -> View -> Select your Charger / Discharger
